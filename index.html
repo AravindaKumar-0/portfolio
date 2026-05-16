@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Aravinda Kumar S — Cloud/DevOps & Security</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #00f5a0;
+    --accent2: #00c3ff;
+    --muted: #444466;
+    --text: #e8e8f0;
+    --text-dim: #8888aa;
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  .cursor {
+    width: 10px; height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.2s, height 0.2s;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid var(--accent2);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: left 0.12s ease, top 0.12s ease;
+    opacity: 0.5;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.12;
+  }
+  .blob-1 { width: 600px; height: 600px; background: var(--accent); top: -200px; left: -200px; }
+  .blob-2 { width: 500px; height: 500px; background: var(--accent2); bottom: -150px; right: -150px; }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(12px);
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding-top: 80px;
+  }
+  .hero-inner { width: 100%; }
+  .hero-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 12px;
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+  .hero-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(3.5rem, 9vw, 6.5rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.35s forwards;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-role {
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    font-weight: 600;
+    color: var(--accent2);
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.5s forwards;
+  }
+  .hero-desc {
+    font-size: 0.82rem;
+    line-height: 1.9;
+    color: var(--text-dim);
+    max-width: 560px;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.65s forwards;
+  }
+  .hero-cta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.8s forwards;
+  }
+  .btn {
+    display: inline-block;
+    padding: 12px 28px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    transition: background 0.2s, color 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: translateX(-100%);
+    transition: transform 0.25s;
+    z-index: -1;
+  }
+  .btn:hover::before { transform: translateX(0); }
+  .btn:hover { color: var(--bg); }
+  .btn-ghost {
+    border-color: var(--border);
+    color: var(--text-dim);
+  }
+  .btn-ghost::before { background: var(--surface); }
+  .btn-ghost:hover { color: var(--text); }
+
+  section { padding: 100px 0; }
+  .section-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 56px;
+    letter-spacing: -0.02em;
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .skill-card {
+    background: var(--surface);
+    padding: 28px;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .skill-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+  .skill-card:hover::after { transform: scaleX(1); }
+  .skill-card:hover { background: #15151f; }
+  .skill-category {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 12px;
+  }
+  .skill-name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    background: var(--border);
+    color: var(--text-dim);
+    border: 1px solid var(--muted);
+  }
+
+  .projects-list { display: flex; flex-direction: column; gap: 2px; }
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 36px;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .project-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(var(--accent), var(--accent2));
+    transform: scaleY(0);
+    transition: transform 0.3s;
+  }
+  .project-card:hover::before { transform: scaleY(1); }
+  .project-card:hover { border-color: var(--muted); transform: translateX(4px); }
+  .project-num {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .project-title {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .project-title .github-link {
+    font-size: 0.7rem;
+    color: var(--accent);
+    text-decoration: none;
+    font-family: var(--font-mono);
+    border: 1px solid var(--accent);
+    padding: 4px 12px;
+    transition: all 0.2s;
+  }
+  .project-title .github-link:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .project-points { list-style: none; margin-bottom: 20px; }
+  .project-points li {
+    font-size: 0.78rem;
+    line-height: 1.8;
+    color: var(--text-dim);
+    padding-left: 16px;
+    position: relative;
+    margin-bottom: 4px;
+  }
+  .project-points li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+
+  .edu-card {
+    border: 1px solid var(--border);
+    padding: 40px;
+    background: var(--surface);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: start;
+  }
+  .edu-degree {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .edu-school { font-size: 0.8rem; color: var(--accent2); margin-bottom: 4px; }
+  .edu-detail { font-size: 0.72rem; color: var(--text-dim); }
+  .edu-cgpa {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--accent);
+    text-align: right;
+    line-height: 1;
+  }
+  .edu-cgpa span { display: block; font-size: 0.6rem; letter-spacing: 0.15em; color: var(--text-dim); font-family: var(--font-mono); margin-top: 4px; }
+
+  .status-bar {
+    border: 1px solid var(--border);
+    padding: 20px 32px;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 2px;
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  .status-text { font-size: 0.72rem; color: var(--text-dim); }
+  .status-text strong { color: var(--accent); }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .contact-item {
+    background: var(--surface);
+    padding: 28px;
+    text-decoration: none;
+    transition: background 0.2s;
+    display: block;
+  }
+  .contact-item:hover { background: #15151f; }
+  .contact-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .contact-value {
+    font-size: 0.8rem;
+    color: var(--accent2);
+    word-break: break-all;
+  }
+
+  .devops-track {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 40px;
+  }
+  .devops-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    transition: border-color 0.2s;
+  }
+  .devops-card:hover { border-color: var(--accent); }
+  .devops-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .devops-card-icon {
+    font-size: 1.4rem;
+  }
+  .devops-card-title {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+  .devops-card-status {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-left: auto;
+  }
+  .devops-card-status.done {
+    background: rgba(0, 245, 160, 0.1);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .devops-card-status.active {
+    background: rgba(0, 195, 255, 0.1);
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+  }
+  .devops-card-status.soon {
+    background: rgba(68, 68, 102, 0.3);
+    color: var(--text-dim);
+    border: 1px solid var(--muted);
+  }
+  .devops-card p {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    position: relative;
+    z-index: 1;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.4); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<nav>
+  <a class="nav-logo" href="#">AK_S</a>
+  <div class="nav-links">
+    <a href="#skills">Skills</a>
+    <a href="#projects">Projects</a>
+    <a href="#devops">DevOps</a>
+    <a href="#certifications">Certifications</a>
+    <a href="#education">Education</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-tag">Open to Internships · 2026</div>
+      <h1 class="hero-name">Aravinda Kumar S</h1>
+      <div class="hero-role">Cloud / DevOps Engineer</div>
+      <p class="hero-desc">
+        Pre-final year CSE student at CMR Institute of Technology, Bengaluru.
+        Cloud infrastructure enthusiast with a security-first mindset.
+        Currently building production-grade DevOps pipelines and scaling cloud infrastructure.
+      </p>
+      <div class="hero-cta">
+        <a href="#projects" class="btn">View Projects</a>
+        <a href="#devops" class="btn btn-ghost">DevOps Progress →</a>
+        <a href="http://www.linkedin.com/in/aravinda-kumar-s-bb6619380" target="_blank" class="btn btn-ghost">LinkedIn ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">// 001</div>
+      <h2 class="section-title">Technical Stack</h2>
+    </div>
+    <div class="skills-grid reveal">
+      <div class="skill-card">
+        <div class="skill-category">Cloud</div>
+        <div class="skill-name">AWS</div>
+        <div class="skill-tags">
+          <span class="tag">EC2</span><span class="tag">S3</span><span class="tag">CloudFront</span>
+          <span class="tag">IAM</span><span class="tag">CloudWatch</span><span class="tag">VPC</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-category">Operating Systems</div>
+        <div class="skill-name">Linux & Windows</div>
+        <div class="skill-tags">
+          <span class="tag">Ubuntu</span><span class="tag">Kali Linux</span><span class="tag">Windows</span>
+          <span class="tag">Bash/CLI</span><span class="tag">Systemd</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-category">Security Tools</div>
+        <div class="skill-name">Pentesting & Detection</div>
+        <div class="skill-tags">
+          <span class="tag">Wireshark</span><span class="tag">Metasploit</span>
+          <span class="tag">Nmap</span><span class="tag">Network Security</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-category">Languages</div>
+        <div class="skill-name">Programming</div>
+        <div class="skill-tags">
+          <span class="tag">Python</span><span class="tag">HTML/CSS</span><span class="tag">Bash</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-category">DevOps · In Progress</div>
+        <div class="skill-name">CI/CD & Containers</div>
+        <div class="skill-tags">
+          <span class="tag">Docker</span><span class="tag">Kubernetes</span><span class="tag">Jenkins</span>
+          <span class="tag">GitHub Actions</span><span class="tag">Terraform</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-category">Infrastructure · In Progress</div>
+        <div class="skill-name">IaC & Monitoring</div>
+        <div class="skill-tags">
+          <span class="tag">Terraform</span><span class="tag">Ansible</span><span class="tag">Prometheus</span>
+          <span class="tag">Grafana</span><span class="tag">CloudWatch</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">// 002</div>
+      <h2 class="section-title">Projects</h2>
+    </div>
+    <div class="projects-list">
+
+      <div class="project-card reveal">
+        <div class="project-num">PROJECT 01</div>
+        <div class="project-title">
+          Phishing Attack Simulation
+          <a href="https://AravindaKumar-0.github.io/security-labs/phishing-simulation" target="_blank" class="github-link">GitHub ↗</a>
+        </div>
+        <ul class="project-points">
+          <li>Built a phishing awareness simulation using GoPhish with custom email templates and landing pages</li>
+          <li>Tracked open rates, link clicks, and credential submissions from controlled lab accounts</li>
+          <li>Simulated credential harvesting, fake login portals, and link-based attacks to test organisational detection</li>
+        </ul>
+        <div class="skill-tags">
+          <span class="tag">GoPhish</span><span class="tag">HTML/CSS</span><span class="tag">VirtualBox</span><span class="tag">Social Engineering</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-num">PROJECT 02</div>
+        <div class="project-title">
+          CEH — Network Penetration Testing
+          <a href="https://AravindaKumar-0.github.io/security-labs/network-pentest" target="_blank" class="github-link">GitHub ↗</a>
+        </div>
+        <ul class="project-points">
+          <li>Conducted penetration testing on WEP, WPA, and WPA2 protocols, exploiting weaknesses via IV cracking and handshake attacks</li>
+          <li>Documented remediation techniques to harden enterprise Wi-Fi networks against common threats</li>
+          <li>Deployed defense strategies: WPA3 migration, rogue AP detection, and improved authentication controls</li>
+        </ul>
+        <div class="skill-tags">
+          <span class="tag">Kali Linux</span><span class="tag">WPA/WEP</span><span class="tag">Aircrack-ng</span><span class="tag">Network Security</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-num">PROJECT 03</div>
+        <div class="project-title">
+          Static Website Hosting — S3 + CloudFront
+          <a href="https://github.com/AravindaKumar-0/s3-static-hosting" target="_blank" class="github-link">GitHub ↗</a>
+        </div>
+        <ul class="project-points">
+          <li>Hosted a static website on AWS S3 with CloudFront CDN for global edge delivery across 400+ locations</li>
+          <li>Configured Origin Access Identity (OAC) so S3 bucket stays private — only CloudFront can serve content</li>
+          <li>Enforced HTTPS via CloudFront with automatic HTTP → HTTPS redirect, SSL termination via ACM</li>
+        </ul>
+        <div class="skill-tags">
+          <span class="tag">AWS S3</span><span class="tag">CloudFront</span><span class="tag">ACM</span><span class="tag">Route 53</span><span class="tag">CDN</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-num">PROJECT 04</div>
+        <div class="project-title">
+          Auto-Scaling Infrastructure — ALB + ASG
+          <a href="https://github.com/AravindaKumar-0/auto-scaling-aws" target="_blank" class="github-link">GitHub ↗</a>
+        </div>
+        <ul class="project-points">
+          <li>Built high-availability web infrastructure using an Application Load Balancer routing traffic across 3 AZs</li>
+          <li>Configured Auto Scaling Group with min:2, max:5 instances — scales out at 70% CPU, scales in at 30%</li>
+          <li>Implemented health checks via ALB target groups — unhealthy instances auto-terminated and replaced</li>
+        </ul>
+        <div class="skill-tags">
+          <span class="tag">AWS ALB</span><span class="tag">Auto Scaling</span><span class="tag">EC2</span><span class="tag">VPC</span><span class="tag">CloudWatch</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- DEVOPS PATH -->
+<section id="devops">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">// 002.5</div>
+      <h2 class="section-title">DevOps Learning Path</h2>
+      <div class="status-bar">
+        <div class="status-dot"></div>
+        <div class="status-text">Building toward <strong>DevOps Engineer</strong> role · Target: 2026</div>
+      </div>
+    </div>
+    <div class="devops-track reveal">
+      <div class="devops-card">
+        <div class="devops-card-header">
+          <span class="devops-card-icon">🐧</span>
+          <span class="devops-card-title">Linux Administration</span>
+          <span class="devops-card-status done">Completed</span>
+        </div>
+        <p>System administration, shell scripting, process management, user management, systemd, networking fundamentals.</p>
+      </div>
+      <div class="devops-card">
+        <div class="devops-card-header">
+          <span class="devops-card-icon">☁️</span>
+          <span class="devops-card-title">Cloud (AWS)</span>
+          <span class="devops-card-status done">Completed</span>
+        </div>
+        <p>EC2, S3, VPC, IAM, CloudFront, CloudWatch — designed and deployed scalable cloud infrastructure.</p>
+      </div>
+      <div class="devops-card">
+        <div class="devops-card-header">
+          <span class="devops-card-icon">🐳</span>
+          <span class="devops-card-title">Docker & Containers</span>
+          <span class="devops-card-status active">In Progress</span>
+        </div>
+        <p>Containerisation, Docker Compose, image optimisation, multi-stage builds, Docker networking.</p>
+      </div>
+      <div class="devops-card">
+        <div class="devops-card-header">
+          <span class="devops-card-icon">🔁</span>
+          <span class="devops-card-title">CI/CD Pipelines</span>
+          <span class="devops-card-status soon">Next</span>
+        </div>
+        <p>GitHub Actions, Jenkins — build automation, test pipelines, deployment triggers.</p>
+      </div>
+      <div class="devops-card">
+        <div class="devops-card-header">
+          <span class="devops-card-icon">☸️</span>
+          <span class="devops-card-title">Kubernetes</span>
+          <span class="devops-card-status soon">Next</span>
+        </div>
+        <p>Container orchestration, pods, services, deployments, Helm charts, cluster management.</p>
+      </div>
+      <div class="devops-card">
+        <div class="devops-card-header">
+          <span class="devops-card-icon">📜</span>
+          <span class="devops-card-title">Terraform / IaC</span>
+          <span class="devops-card-status soon">Next</span>
+        </div>
+        <p>Infrastructure as Code — provisioning, AWS resource automation, state management.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CERTIFICATIONS -->
+<section id="certifications">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">// 002.7</div>
+      <h2 class="section-title">Certifications</h2>
+    </div>
+    <div class="skills-grid reveal">
+      <div class="skill-card">
+        <div class="skill-category">In Progress</div>
+        <div class="skill-name">AWS Cloud Practitioner</div>
+        <div class="skill-tags">
+          <span class="tag">AWS</span><span class="tag">Cloud Fundamentals</span><span class="tag">Cloud Architecture</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">// 003</div>
+      <h2 class="section-title">Education</h2>
+    </div>
+    <div class="edu-card reveal">
+      <div>
+        <div class="edu-degree">Bachelor of Engineering — CSE</div>
+        <div class="edu-school">CMR Institute of Technology, Bengaluru</div>
+        <div class="edu-detail">Pre-Final Year &nbsp;·&nbsp; Expected 2027</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">// 004</div>
+      <h2 class="section-title">Get In Touch</h2>
+    </div>
+    <div class="status-bar reveal">
+      <div class="status-dot"></div>
+      <div class="status-text">Actively seeking <strong>Cloud / DevOps internship</strong> opportunities · Open to remote</div>
+    </div>
+    <div class="contact-grid reveal">
+      <a class="contact-item" href="http://www.linkedin.com/in/aravinda-kumar-s-bb6619380" target="_blank">
+        <div class="contact-label">LinkedIn</div>
+        <div class="contact-value">aravinda-kumar-s</div>
+      </a>
+      <a class="contact-item" href="mailto:aravindkumars0704@gmail.com">
+        <div class="contact-label">Email</div>
+        <div class="contact-value">aravindkumars0704@gmail.com</div>
+      </a>
+      <a class="contact-item" href="https://github.com/AravindaKumar-0" target="_blank">
+        <div class="contact-label">GitHub</div>
+        <div class="contact-value">AravindaKumar-0</div>
+      </a>
+      <div class="contact-item">
+        <div class="contact-label">Location</div>
+        <div class="contact-value">Bengaluru, Karnataka</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 Aravinda Kumar S</span>
+  <span>CLOUD · DEVOPS · SECURITY</span>
+</footer>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+    ring.style.left = e.clientX + 'px';
+    ring.style.top = e.clientY + 'px';
+  });
+
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
